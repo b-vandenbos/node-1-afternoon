@@ -13,10 +13,12 @@ export default class ChatWindow extends Component {
     super();
     this.state = {
       messages: [],
-      text: ''
+      text: '',
+      displayName: ''
     };
 
     this.handleChange = this.handleChange.bind( this );
+    this.handleNameChange = this.handleNameChange.bind(this);
     this.createMessage = this.createMessage.bind( this );
     this.editMessage = this.editMessage.bind( this );
     this.removeMessage = this.removeMessage.bind( this );
@@ -32,14 +34,19 @@ export default class ChatWindow extends Component {
     this.setState({ text: event.target.value });
   }
 
+  handleNameChange( event ) {
+    this.setState({ displayName: event.target.value });
+  }
+
   createMessage( event ) {
     const { text } = this.state;
     if ( event.key === "Enter" && text.length !== 0 ) {
-      axios.post( url, { text, time: dateCreator() } ).then( response => {
+      axios.post( url, { displayName, text, time: dateCreator() } ).then( response => {
         this.setState({ messages: response.data });
       });
 
       this.setState({ text: '' });
+      this.setState({displayName: ''});
     }
   }
 
@@ -63,7 +70,7 @@ export default class ChatWindow extends Component {
           <div id="ChatWindow__messagesChildContainer">
             {
               this.state.messages.map( message => (
-                <Message id={ message.id} key={ message.id } text={ message.text } time={ message.time } edit={ this.editMessage } remove={ this.removeMessage } />
+                <Message id={ message.id} key={ message.id } displayName={message.displayName} text={ message.text } time={ message.time } edit={ this.editMessage } remove={ this.removeMessage } />
               ))
             }
           </div>
@@ -73,6 +80,12 @@ export default class ChatWindow extends Component {
                  onKeyPress={ this.createMessage }
                  onChange={ this.handleChange }
                  value={ this.state.text }
+          />
+        </div>
+        <div id="ChatWindow__newMessageContainer">
+          <input placeholder="What's your username?" 
+                 onChange={ this.handleNameChange }
+                 value={ this.state.displayName }
           />
         </div>
       </div>
